@@ -1,34 +1,28 @@
-"""
-FUZZY
-Rulenya:
-1. Jika penggunaan daya kecil DAN sisa daya pada baterai banyak maka switch ke panel surya
-2. Jika penggunaan daya kecil DAN sisa daya pada baterai sedikit maka 
-3.
-4.
-5.
-6. 
-"""
+#!/usr/bin/env python
 
-import numpy as np
-from cahaya import cahaya
-from baterai import baterai
+from fuzzy import fuzzy
 
-valSensLDR = 25		#  2  3  4  5  6  7  8
-parameter1 = cahaya(0,10,30,20,40,60,50,70)
-cahaya_rendah = parameter1.fuzzifikasi_sedikit(valSensLDR)
-cahaya_sedang = parameter1.fuzzifikasi_sedang(valSensLDR)
-cahaya_tinggi = parameter1.fuzzifikasi_tinggi(valSensLDR)
+# membership function variabel cahaya
+cahayarendah = [0,10,30] # trapezoid
+cahayasedang = [20,40,60] # segitiga
+cahayatinggi = [50,70] # trapezoid
 
-valSensBaterai = 3.5
-parameter2 = baterai(0,1,3,2,4,6,5,7)
-baterai_rendah = parameter2.fuzzifikasi_sedikit(valSensBaterai)
-baterai_sedang = parameter2.fuzzifikasi_sedang(valSensBaterai)
-baterai_tinggi = parameter2.fuzzifikasi_tinggi(valSensBaterai)
+# membership function variabel baterai
+bateraisedikit = [0,1,3]
+bateraisedang = [2,4,6]
+bateraibanyak = [5,7]
 
-print cahaya_rendah
-print cahaya_sedang
-print cahaya_tinggi
+valLDR = float(input("Input LDR: "))
+valBat = float(input("Input Baterai: "))
 
-print baterai_rendah
-print baterai_sedang
-print baterai_tinggi
+initFuzzy = fuzzy(valLDR,valBat,1)
+initFuzzy.membershipCahaya(cahayarendah,cahayasedang,cahayatinggi)
+initFuzzy.membershipBaterai(bateraisedikit,bateraisedang,bateraibanyak)
+
+getFuzCah = initFuzzy.fuzzifikasiCahaya()
+getFuzBat = initFuzzy.fuzzifikasiBaterai()
+getMin = initFuzzy.getMinimal()
+
+print getFuzCah
+print getFuzBat
+print getMin
