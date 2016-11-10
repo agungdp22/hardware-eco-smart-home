@@ -53,8 +53,13 @@ class fuzzy(object):
 		return degreeBaterai
 
 	def getMinimal(self):
-		minimal = []
+		self.minimal = []
 		for i in range(3):
 			for j in range(3):
-				minimal.append(min(self.degreeCahaya[i],self.degreeBaterai[j]))
-		return minimal
+				self.minimal.append(min(self.degreeCahaya[i],self.degreeBaterai[j]))
+		return self.minimal
+
+	def defuzzifikasi(self):
+		pembilang = 0
+		penyebut = 0
+		return pembilang
