@@ -1,76 +1,53 @@
 #!/usr/bin/env python
 import time
-from time import strftime
-import smbus
-from fuzzy.fuzzy import fuzzy
+import numpy as np
+from I2C_Arduino.i2c import i2c
 from API.getAPI import getAPI
 from API.postAPI import postAPI
+from anfis.trainingData import trainingData as tryAnfis
 
-bus = smbus.SMBus(1)
+def kendali(getdata):
+	hasil = getdata.perangkat()
+	oper = []
+	nilai = 0
+	siz = np.size(hasil)/2 -1
+	for i in hasil:
+		oper.append(i[1])
+		nilai += i[1]*(2**siz)
+		siz-=1
+	# kirim = hasil[0]*2 + hasil[1]
+	konekArduino.kirimData(nilai)
+	print oper
+	# print nilai
+
+def safemode(persentase, jumlahdaya):
+	predik = anf.keputusan(persentase,jumlahdaya)
+	return predik
+
+# Training data dulu
+anf = tryAnfis(epochs=10)
+anf.training()
+print "Training Data Selesai...."
 
 # alamat i2c, disamain dgn yg di arduino->0x2a
 address = 0x2a
-header = 'iotpln2016'
+headerAPI = {'Authorization': 'coegsekali ', "Content-Type": "application/json"}
 
-def writeNumber(value):
-	bus.write_byte(address, value)
-	return -1
-
-def bacaSensor():
-	data = []
-	jumlah = 0
-	for i in range(0, 4):
-		val = bus.read_byte(address)
-		jumlah+=val
-		data.append(val)
-	data.append(jumlah)
-	return jumlah
-
-def hitungFuzzy(valLDR, valBat):
-	# membership function variabel cahaya
-	cahayarendah = [0,450,550] # trapezoid
-	cahayasedang = [500,600,800] # segitiga
-	cahayatinggi = [650,950] # trapezoid
-
-	# membership function variabel baterai
-	bateraisedikit = [0,1,3]
-	bateraisedang = [2,4,6]
-	bateraibanyak = [5,7]
-	initFuzzy = fuzzy(valLDR,valBat,1)
-	initFuzzy.membershipCahaya(cahayarendah,cahayasedang,cahayatinggi)
-	initFuzzy.membershipBaterai(bateraisedikit,bateraisedang,bateraibanyak)
-
-	getFuzzyCahaya = initFuzzy.fuzzifikasiCahaya()
-	print getFuzzyCahaya
-	return getFuzzyCahaya
-
-var = 1
-postdata = postAPI(header)
-getdata = getAPI(header)
+postdata = postAPI(headerAPI)
+getdata = getAPI(headerAPI)
+konekArduino = i2c(address)
+print "Device ready..."
 
 while True:
-	pil = int(input("Pilih pilihan: "))
-	if pil==1:
-		writeNumber(var)
-		print "RPI: Kirim ke arduino-> ", var
-		time.sleep(1)
-
-		value = bacaSensor()
-		print "Arduino: terima dari RPI-> ", value
-
-		datetimeWrite = (time.strftime("%Y-%m-%d ") + time.strftime("%H:%M:%S"))
-		postdata.sensor(datetimeWrite,var,value)
-		print "Mengirim data sensor ke server..."
-		time.sleep(1)
-
-		varFuzzy = hitungFuzzy(value,var)
-		postdata.fuzzy(datetimeWrite,varFuzzy)
-		time.sleep(1)
-		print "Mengirim informasi fuzzy ke server..."
-
-		# var = var+1
-		# if var==4:
-		# 	var = 1
-		time.sleep(30) # delay 30 detik
-	elif pil==2:
-		print getdata.sensor()
+	x=int(input("Persentase: "))
+	y=int(input("Daya: "))
+	postdata.postBaterai(x)
+	isSafe = safemode(x,y)
+	if isSafe:
+		postdata.safeMode()
+		print "Switch to safe mode"
+	# elif pil==3:
+	# 	kendali(getdata)
+	# 	#nmb = int(input("-->: "))
+	# 	# writeNumber(nmb)
+	# 	time.sleep(0.5)

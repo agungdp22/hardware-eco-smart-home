@@ -16,3 +16,19 @@ class getAPI(object):
 			array_sensor.append(val['nilai_sensor'])
 			array_idSens.append(val['id_sensor'])
 		return array_sensor
+
+	def perangkat(self):
+		url = "http://agungdp.agri.web.id:3456/mobile/getAPI"
+		respon = requests.get(url, headers=self.header)
+
+		# print respon.json()
+		# print respon.headers['content-type']
+
+		if respon.status_code==422:
+			return respon.json()['status']
+		else:
+			hasil = json.loads(respon.text)
+			array_perangkat = []
+			for val in hasil['data']:
+				array_perangkat.append([val['nama_perangkat'],val['status']])
+			return array_perangkat
