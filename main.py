@@ -31,17 +31,18 @@ while True:
 	# x=int(input("Persentase: "))
 	# y=int(input("Daya: "))
 	# postdata.postBaterai(x)
-	# isSafe = safemode(x,y)
-	# if isSafe:
-	# 	postdata.safeMode()
-	# 	print "Switch to safe mode"
 	# send = getdata.cekBuff()
 	# print send
 	# if send!="berubah":
 	# 	konekArduino.kendaliPerangkat(send)
 	# time.sleep(5)
-	listeningServer()
+	listeningServer() # siap terima perintah untuk hidup/matikan perangkat rumah
 	daya = randint(1,20)
-	print daya
-	postdata.postDaya(daya)
+	persentase = randint(1,100)
+	print daya,persentase
+	# postdata.postDaya(daya)	
+	# isSafe = safemode(persentase,daya)
+	# if isSafe:
+	# 	postdata.safeMode() # kirim notif kalo mode berganti ke safe mode
+	# 	print "Switch to safe mode"
 

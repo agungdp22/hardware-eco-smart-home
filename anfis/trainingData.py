@@ -34,11 +34,8 @@ class trainingData(object):
 		model = self.anf
 		parameter = numpy.array([[dayaBaterai,pemakaianDaya],[1,1]])
 		prediksi = anfis.predict(model,parameter)
-		print prediksi[0][0]
-		if prediksi[0][0]>0.5:
-			print "Switch to panel surya"
+		kep = round(prediksi[0][0])
+		if kep:
 			return True
 		else:
-			print "PLN Mode"
 			return False
-		# return prediksi[0][0]
